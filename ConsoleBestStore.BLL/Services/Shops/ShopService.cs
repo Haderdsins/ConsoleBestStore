@@ -56,4 +56,12 @@ public class ShopService : IShopService
             throw new ArgumentException("Store not found.");
         }
     }
+    public List<Shop> GetAllShops()
+    {
+        return _dbContext.Shops.ToList();
+    }
+    public Shop GetShopById(int storeId)
+    {
+        return _dbContext.Shops.FirstOrDefault(s => s.Id == storeId);
+    }
 }

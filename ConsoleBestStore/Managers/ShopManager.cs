@@ -16,10 +16,12 @@ public class ShopManager
 
     public void Run()
     {
+        Console.Clear();
         Console.WriteLine("Выберите операцию:");
         Console.WriteLine("1. Создать магазин");
         Console.WriteLine("2. Удалить магазин");
         Console.WriteLine("3. Обновить магазин");
+        Console.WriteLine("4. Вывести все магазины");
         int choice = int.Parse(Console.ReadLine());
 
         switch (choice)
@@ -32,6 +34,9 @@ public class ShopManager
                 break;
             case 3:
                 UpdateShop();
+                break;
+            case 4:
+                DisplayAllShops();
                 break;
             default:
                 Console.WriteLine("Неверный выбор");
@@ -62,11 +67,16 @@ public class ShopManager
         Console.WriteLine("Магазин удален успешно!");
     }
 
-    public void UpdateShop()
-    {
-        Console.WriteLine("Введите идентификатор магазина для обновления:");
-        int storeId = int.Parse(Console.ReadLine());
+public void UpdateShop()
+{
+    Console.WriteLine("Введите идентификатор магазина для обновления:");
+    int storeId = int.Parse(Console.ReadLine());
 
+    // Проверяем, существует ли магазин с указанным идентификатором
+    var existingShop = _storeService.GetShopById(storeId);
+
+    if (existingShop != null)
+    {
         Console.WriteLine("Введите новое название магазина:");
         string newName = Console.ReadLine();
         Console.WriteLine("Введите новый адрес магазина:");
@@ -76,7 +86,30 @@ public class ShopManager
         _storeService.Update(updateStoreModel.StoreId, updateStoreModel);
 
         Console.WriteLine("Магазин обновлен успешно!");
-        
     }
+    else
+    {
+        Console.WriteLine($"Магазин с идентификатором {storeId} не найден.");
+    }
+}
+
+    private void DisplayAllShops()
+    {
+        var shops = _storeService.GetAllShops();
+    
+        if (shops.Any())
+        {
+            Console.WriteLine("Список всех магазинов:");
+            for (int i = 0; i < shops.Count; i++)
+            {
+                Console.WriteLine($"{i + 1}. Магазин {shops[i].Name}, Адрес: {shops[i].Address}");
+            }
+        }
+        else
+        {
+            Console.WriteLine("Нет доступных магазинов.");
+        }
+    }
+
 
 }
