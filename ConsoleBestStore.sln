@@ -1,6 +1,6 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ConsoleBestStore.CNL", "ConsoleBestStore.CNL\ConsoleBestStore.CNL.csproj", "{6E905F08-B858-4589-8A1C-F53FC0DEF7D9}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ConsoleBestStore", "ConsoleBestStore\ConsoleBestStore.csproj", "{6E905F08-B858-4589-8A1C-F53FC0DEF7D9}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ConsoleBestStore.BLL", "ConsoleBestStore.BLL\ConsoleBestStore.BLL.csproj", "{CBB11F16-9D7C-4079-AF84-50A964D5F18F}"
 EndProject
