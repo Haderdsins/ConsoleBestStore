@@ -11,4 +11,5 @@ public class OmgItem
     public int Count { get; set; }//Количество продукта
 
     public int Price { get; set; }//Цена продукта
+
 }

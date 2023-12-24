@@ -9,8 +9,8 @@ namespace ConsoleBestStore.BLL.Services.BatchOfProducts;
 
 public class BatchOfProductService : IBatchOfProductService
 {
-    
     private readonly ShopDbContext _dbContext;
+
     public BatchOfProductService(ShopDbContext dbContext)
     {
         _dbContext = dbContext;
@@ -28,7 +28,7 @@ public class BatchOfProductService : IBatchOfProductService
         _dbContext.SaveChanges();
         
     }
-    
+
     public void Delete(int itemId)
     {
         var itemToDelete = _dbContext.OmgItems.Find(itemId);
@@ -41,29 +41,10 @@ public class BatchOfProductService : IBatchOfProductService
         else
         {
             // Обработка случая, когда магазин с указанным ID не найден
-            throw new ArgumentException("Item not found.");
+            throw new ArgumentException("Продукт не найден.");
         }
     }
-    public void Update(int itemId, UpdateBatchOfProductModel model)
-    {
-        var itemToUpdate = _dbContext.OmgItems.Find(itemId);
 
-        if (itemToUpdate != null)
-        {
-            // Обновление атрибутов продукта
-            itemToUpdate.ProductId = model.ProductId; 
-            itemToUpdate.StoreId = model.StoreId;
-            itemToUpdate.Count += model.Count;
-            itemToUpdate.Price = model.Price;
-            _dbContext.SaveChanges();
-        }
-        else
-        {
-            // Обработка случая, когда продукт с указанным ID не найден
-            throw new ArgumentException("Item not found.");
-        }
-    }
-    
     public Shop FoundStoreWhereMinPriceProduct(int productId)
     {
         var cheapestItem = _dbContext.OmgItems
@@ -80,7 +61,7 @@ public class BatchOfProductService : IBatchOfProductService
         // Handle the case where the product is not found or no store has the product
         throw new Exception("Product not found or no store has the product.");
     }
-//TODO: добавить в получаемые переменнные productId, имзенить принцип расчета quantity, проверку на ноли и округление
+
     public GetItemsForAmountModel GetItemsForAmount(decimal amount)
     {
         var affordableItems = _dbContext.OmgItems
@@ -103,79 +84,26 @@ public class BatchOfProductService : IBatchOfProductService
 
         return new GetItemsForAmountModel(result);
     }
-    
-    public GetAllStoresModel FindCheapestStoreForBatches(List<CheapestStoreModel> model)
+
+    public void Update(int itemId, UpdateBatchOfProductModel model)
     {
-        var array = new List<int>(); // хранятся StoreIds
+        var itemToUpdate = _dbContext.OmgItems.Find(itemId);
 
-        for (var i = 0; i < model.Count; i++)
+        if (itemToUpdate != null)
         {
-            var storeIds = _dbContext.OmgItems
-                .Where(x => 
-                    x.ProductId == model[i].ProductId && 
-                    x.Count >= model[i].BatchCount)
-                .Select(x => x.StoreId)
-                .ToList();
-
-            if (i == 0)
-            {
-                array = storeIds;
-            }
-            else
-            {
-                array = array.Intersect(storeIds).ToList();
-            }
+            // Обновление атрибутов продукта
+            itemToUpdate.Count += model.Count;
+            itemToUpdate.Price = model.Price; // Обновление цены
+            _dbContext.SaveChanges();
         }
-        // array - 5 6, это ids
-        var minTotalPrice = decimal.MaxValue;
-        
-        var cheapestStoreId = 0;
-
-        foreach (var storeId in array)
+        else
         {
-            // 5
-            var allStoreProducts = _dbContext.OmgItems
-                .Where(x => x.StoreId == storeId)
-                .ToList();
-
-            // ручка, тетрадь, бумага
-            decimal totalBatchPrice = 0;
-
-            // items - ручка и тетрадь + их кол-во
-            foreach (var item in model)
-            {
-                // тетрадь
-                var product = allStoreProducts
-                    .FirstOrDefault(x => x.ProductId == item.ProductId);
-                
-                totalBatchPrice += product!.Price * item.BatchCount;
-            }
-
-            if (totalBatchPrice < minTotalPrice)
-            {
-                minTotalPrice = totalBatchPrice;
-                cheapestStoreId = storeId;
-            }
+            // Обработка случая, когда продукт с указанным ID не найден
+            throw new ArgumentException("Продукт не найден.");
         }
-
-        if (cheapestStoreId == 0)
-        {
-            throw new ArgumentException("Error!");
-        }
-
-        var cheapestStore = _dbContext.Shops
-            .FirstOrDefault(x => x.Id == cheapestStoreId);
-        return new GetAllStoresModel
-        {
-            Id=cheapestStore.Id,
-            Name = cheapestStore.Name,
-            Address = cheapestStore.Address,
-        };
     }
 
 
-
-    
     public decimal PurchaseItems(Dictionary<int, int> itemQuantities)
     {
         decimal totalCost = 0;
@@ -203,5 +131,114 @@ public class BatchOfProductService : IBatchOfProductService
 
         return totalCost;
     }
+
+    public GetAllStoresModel FindCheapestStoreForBatches(List<CheapestStoreModel> model)
+    {
+        var array = new List<int>();
+
+        for (var i = 0; i < model.Count; i++)
+        {
+            var storeIds = _dbContext.OmgItems
+                .Where(x =>
+                    x.ProductId == model[i].ProductId &&
+                    x.Count >= model[i].BatchCount)
+                .Select(x => x.StoreId)
+                .ToList();
+
+            if (i == 0)
+            {
+                array = storeIds;
+            }
+            else
+            {
+                array = array.Intersect(storeIds).ToList();
+            }
+        }
+
+        var minTotalPrice = decimal.MaxValue;
+        var cheapestStoreId = 0;
+
+        foreach (var storeId in array)
+        {
+            var allStoreProducts = _dbContext.OmgItems
+                .Where(x => x.StoreId == storeId)
+                .ToList();
+
+            decimal totalBatchPrice = 0;
+
+            foreach (var item in model)
+            {
+                var product = allStoreProducts
+                    .FirstOrDefault(x => x.ProductId == item.ProductId);
+
+                totalBatchPrice += product!.Price * item.BatchCount;
+            }
+
+            if (totalBatchPrice < minTotalPrice)
+            {
+                minTotalPrice = totalBatchPrice;
+                cheapestStoreId = storeId;
+            }
+        }
+
+        if (cheapestStoreId == 0)
+        {
+            throw new ArgumentException("Error!");
+        }
+
+        var cheapestStore = _dbContext.Shops
+            .FirstOrDefault(x => x.Id == cheapestStoreId);
+
+        return new GetAllStoresModel
+        {
+            Id = cheapestStore.Id,
+            Name = cheapestStore.Name,
+            Address = cheapestStore.Address,
+        };
+    }
+
+    public bool CheckStoreExistence(int storeId)
+    {
+        return _dbContext.Shops.Any(s => s.Id == storeId);
+    }
+
+    public bool CheckProductExistence(int productId)
+    {
+        return _dbContext.Products.Any(p => p.Id == productId);
+    }
+    public bool CheckItemExistence(int itemId)
+    {
+        return _dbContext.OmgItems.Any(item => item.Id == itemId);
+    }
+    
+    public Product GetProductById(int productId)
+    {
+        var product = _dbContext.Products.FirstOrDefault(p => p.Id == productId);
+
+        if (product == null)
+        {
+            // Обработка случая, когда продукт с указанным ID не найден
+            throw new ArgumentException("Продукт не найден.");
+        }
+
+        return product;
+    }
+
+    public Shop GetShopById(int storeId)
+    {
+        var store = _dbContext.Shops.FirstOrDefault(s => s.Id == storeId);
+
+        if (store == null)
+        {
+            throw new ArgumentException($"Магазин с ID {storeId} не найден.");
+        }
+
+        return store;
+    }
+    public bool CheckBatchExistence(int itemId)
+    {
+        return _dbContext.OmgItems.Any(item => item.Id == itemId);
+    }
+    
     
 }

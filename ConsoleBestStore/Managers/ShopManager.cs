@@ -22,21 +22,29 @@ public class ShopManager
         Console.WriteLine("2. Удалить магазин");
         Console.WriteLine("3. Обновить магазин");
         Console.WriteLine("4. Вывести все магазины");
+        Console.WriteLine("5. Назад");
         int choice = int.Parse(Console.ReadLine());
 
         switch (choice)
         {
             case 1:
                 CreateShop();
+                Run();
                 break;
             case 2:
                 DeleteShop();
+                Run();
                 break;
             case 3:
                 UpdateShop();
+                Run();
                 break;
             case 4:
                 DisplayAllShops();
+                Run();
+                break;
+            case 5:
+                Program.Main();
                 break;
             default:
                 Console.WriteLine("Неверный выбор");

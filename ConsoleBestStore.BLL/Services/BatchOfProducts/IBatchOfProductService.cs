@@ -19,5 +19,14 @@ public interface IBatchOfProductService
 
     decimal PurchaseItems(Dictionary<int, int> itemQuantities);
     
-    GetAllStoresModel FindCheapestStoreForBatches(List<CheapestStoreModel> batchItems);
+    GetAllStoresModel FindCheapestStoreForBatches(List<CheapestStoreModel> model);
+    bool CheckStoreExistence(int storeId);
+    bool CheckProductExistence(int productId);
+    bool CheckItemExistence(int itemId);
+    Product GetProductById(int productId);
+    Shop GetShopById(int storeId);
+    bool CheckBatchExistence(int itemId);
+    
+    
+    
 }

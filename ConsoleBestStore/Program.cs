@@ -2,17 +2,18 @@
 using ConsoleBestStore.BLL.Services.Products;
 using ConsoleBestStore.BLL.Services.Shops;
 using ConsoleBestStore.DAL.DataBase;
+using ConsoleBestStore.UI.Managers;
 using ConsoleBestStore.UI.Visions;
 
 class Program
 {
-    static void Main()
+    public static void Main()
     {
         var dbContext = new ShopDbContext();
         IShopService shopService = new ShopService(dbContext);
         IProductService productService = new ProductService(dbContext);
         IBatchOfProductService batchOfProductService = new BatchOfProductService(dbContext);
-
+        Console.Clear();
         Console.WriteLine("С чем хотите сегодня работать?");
         Console.WriteLine("1. Магазины");
         Console.WriteLine("2. Продукты");
